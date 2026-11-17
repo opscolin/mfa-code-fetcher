@@ -1,0 +1,19 @@
+{
+  "email": "your-name@your-company.com",
+  "password": "IMAP 专用密码（如飞书：桌面客户端 → 设置 → 邮箱 → 第三方邮箱客户端登录 → 生成；不是登录密码）",
+  "imap_host": "imap.feishu.cn",
+  "imap_port": 993,
+  "poll_interval": 5,
+  "subject_keywords": [
+    "MFA",
+    "verification"
+  ],
+  "sender_allowlist": [
+    "notice.aliyun.com"
+  ],
+  "code_ttl_minutes": 10,
+  "code_regex": null,
+  "api_port": 8642,
+  "log_level": "INFO",
+  "log_keep_months": 2
+}

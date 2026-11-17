@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 14px;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      color: #26215C;
+    }
+    h1 { font-size: 14px; font-weight: 500; margin: 0 0 10px; }
+    h2 { font-size: 13px; font-weight: 500; margin: 14px 0 8px; border-top: 1px solid #eee; padding-top: 10px; }
+    h2 .add-btn { float: right; background: #EEEDFE; color: #3C3489; border: 0; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+    #code-box {
+      border: 1px solid #AFA9EC;
+      background: #EEEDFE;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #code {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      font-family: ui-monospace, monospace;
+    }
+    #code-meta { font-size: 11px; color: #534AB7; margin-top: 4px; }
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .btn-row button { flex: 1; }
+    #btn-copy { background: #534AB7; color: #fff; }
+    #btn-fill { background: #EEEDFE; color: #3C3489; border: 1px solid #AFA9EC; }
+
+    /* 本页启用状态条 */
+    #host-box {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid #EF9F27; background: #FAEEDA;
+      border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;
+      font-size: 11px; color: #633806; line-height: 1.4;
+    }
+    #host-box.on { border-color: #5DCAA5; background: #E1F5EE; color: #085041; }
+    #host-box span { flex: 1; word-break: break-all; }
+    #host-box button { background: #BA7517; color: #fff; padding: 4px 10px; font-size: 11px; white-space: nowrap; }
+    #host-box.on button { display: none; }
+
+    /* 本地 API 权限修复条 */
+    #api-fix {
+      display: flex; flex-direction: column; gap: 6px;
+      border: 1px solid #F09595; background: #FCEBEB;
+      border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;
+      font-size: 11px; color: #791F1F; line-height: 1.4;
+    }
+    #api-fix .api-fix-actions { display: flex; gap: 6px; }
+    #api-fix .api-fix-actions button { flex: 1; padding: 5px 0; font-size: 11px; }
+    #btn-fix-api { background: #A32D2D; color: #fff; }
+    #btn-fix-settings { background: #F1EFE8; color: #5F5E5A; }
+    #fix-row { display: none; gap: 8px; margin-top: 8px; }
+    #fix-row button {
+      flex: 1; padding: 6px 0; font-size: 12px; border-radius: 6px;
+      white-space: nowrap;
+    }
+    #btn-inject-now { background: #534AB7; color: #fff; }
+    #btn-perm-settings { background: #F1EFE8; color: #5F5E5A; }
+
+    /* TOTP 条目: 三行布局 — 名称行 / 验证码行 / 域名行 */
+    .totp-item {
+      border: 1px solid #D3D1C7;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .totp-item .row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .totp-item .row1 .label {
+      flex: 1; font-size: 12px; font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .totp-item .row1 .countdown { font-size: 11px; color: #854F0B; }
+    .totp-item .row2 { display: flex; align-items: center; gap: 8px; }
+    .totp-item .row2 .tcode {
+      flex: 1;
+      font-family: ui-monospace, monospace;
+      font-size: 22px; font-weight: 600; letter-spacing: 3px;
+      color: #0F6E56;
+    }
+    .totp-item .row2 button { background: #F1EFE8; color: #5F5E5A; padding: 4px 10px; font-size: 11px; }
+    .totp-item .row2 button.edit { color: #3C3489; }
+    .totp-item .row2 button.del { color: #A32D2D; }
+    .totp-item .domain {
+      font-size: 10px; color: #5F5E5A; margin-top: 6px;
+      word-break: break-all;
+    }
+
+    /* 行内编辑表单 */
+    .totp-item.editing { border-color: #7F77DD; background: #FAFAFF; }
+    .totp-item .edit-form input {
+      width: 100%; box-sizing: border-box; margin-bottom: 6px;
+      border: 1px solid #AFA9EC; border-radius: 6px; padding: 6px 8px; font-size: 12px;
+    }
+    .totp-item .edit-form .field-row { display: flex; gap: 6px; }
+    .totp-item .edit-form .field-row input { flex: 1; }
+    .totp-item .edit-form .use-page {
+      background: #EEEDFE; color: #3C3489; border: 1px solid #AFA9EC;
+      padding: 6px 8px; font-size: 11px; white-space: nowrap; margin-bottom: 6px;
+    }
+    .totp-item .edit-actions { display: flex; gap: 8px; margin-top: 2px; }
+    .totp-item .edit-actions button { flex: 1; font-size: 12px; padding: 7px 0; }
+    .totp-item .edit-actions .save { background: #534AB7; color: #fff; }
+    .totp-item .edit-actions .cancel { background: #F1EFE8; color: #5F5E5A; }
+    .totp-item .edit-tip { font-size: 10px; color: #888780; margin-top: 6px; line-height: 1.5; }
+    .totp-item .perm-warn {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 6px; padding: 5px 8px;
+      background: #FAEEDA; border: 1px solid #EF9F27; border-radius: 6px;
+      font-size: 10px; color: #633806;
+    }
+    .totp-item .perm-warn span { flex: 1; }
+    .totp-item .perm-warn button { background: #BA7517; color: #fff; padding: 3px 10px; font-size: 10px; }
+
+    #totp-empty { color: #5F5E5A; font-size: 12px; line-height: 1.6; }
+    #totp-form { display: none; border: 1px dashed #AFA9EC; border-radius: 8px; padding: 10px; margin-top: 6px; }
+    #totp-form.show { display: block; }
+    #totp-form input {
+      width: 100%; box-sizing: border-box; margin-bottom: 6px;
+      border: 1px solid #D3D1C7; border-radius: 6px; padding: 6px 8px; font-size: 12px;
+    }
+    #totp-form .field-row { display: flex; gap: 6px; }
+    #totp-form .field-row input { flex: 1; }
+    #totp-form .field-row button {
+      background: #EEEDFE; color: #3C3489; border: 1px solid #AFA9EC;
+      padding: 6px 8px; font-size: 11px; white-space: nowrap; margin-bottom: 6px;
+    }
+    #totp-form .btn-add { background: #534AB7; color: #fff; width: 100%; }
+    #status {
+      font-size: 12px;
+      color: #5F5E5A;
+      line-height: 1.6;
+      border-top: 1px solid #eee;
+      padding-top: 8px;
+      word-break: break-all;
+      margin-top: 12px;
+    }
+    .ok { color: #0F6E56; }
+    .err { color: #A32D2D; }
+    .hint { color: #888780; font-size: 11px; line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <h1>邮箱验证码</h1>
+  <div id="code-box">
+    <div id="code">…</div>
+    <div id="code-meta">读取中</div>
+  </div>
+  <div id="api-fix" style="display:none;">
+    <span id="api-fix-text"></span>
+    <div class="api-fix-actions">
+      <button id="btn-fix-api">恢复本地 API 权限</button>
+      <button id="btn-fix-settings">手动设置</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="btn-copy">复制</button>
+    <button id="btn-fill">强制填充当前页</button>
+  </div>
+
+  <div id="host-box" style="display:none;">
+    <span id="host-text"></span>
+    <button id="btn-enable-host">启用本页</button>
+  </div>
+
+  <div id="fix-row" style="display:none;">
+    <button id="btn-inject-now">立即注入本页</button>
+    <button id="btn-perm-settings">打开权限设置</button>
+  </div>
+
+  <h2>动态口令 (TOTP) <button id="btn-add" class="add-btn">+ 添加秘钥</button></h2>
+  <div id="totp-list"></div>
+  <div id="totp-empty" style="display:none;">暂无秘钥。点右上「+ 添加秘钥」，把绑定 TOTP 时给的 Base32 秘钥存进来，插件就能像 authenticator 一样实时算码。</div>
+  <div id="totp-form">
+    <input id="inp-label" placeholder="名称, 如: 公司 IDaaS">
+    <input id="inp-secret" placeholder="Base32 秘钥 (绑定时给的, 空格和连字符会自动忽略)">
+    <div class="field-row">
+      <input id="inp-domain" placeholder="绑定域名 (可选, 留空=仅手动复制)">
+      <button id="btn-use-page" type="button">用当前页</button>
+    </div>
+    <button id="btn-save" class="btn-add">保存</button>
+  </div>
+
+  <div id="status">检查本地服务状态…</div>
+  <script src="totp.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
